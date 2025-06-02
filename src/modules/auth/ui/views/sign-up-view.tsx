@@ -8,6 +8,7 @@ import { OctagonAlertIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import {
   Form,
@@ -76,13 +77,34 @@ export const SignUpView = () => {
       }
     );
   };
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+
+          setPending(false);
+        },
+        onError: (error) => {
+          setError(error.error.message);
+          setPending(false);
+        },
+      }
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="flex flex-col items-left gap-y-4 p-7 md:p-10">
-            <div className="grid gap-6">
+          <div className="flex flex-col items-left gap-y-4 p-7 md:p-6">
+            <div className="grid gap-4">
               <div>
                 <h1 className="text-3xl font-bold">Create an Account</h1>
                 <p className="text-muted-black font-normal">
@@ -92,7 +114,7 @@ export const SignUpView = () => {
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <div className="grid gap-4">
+                  <div className="grid gap-2">
                     <FormField
                       control={form.control}
                       name="email"
@@ -166,7 +188,7 @@ export const SignUpView = () => {
                     />
 
                     {!!error && (
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1">
                         <Alert className="bg-destructive/10">
                           <OctagonAlertIcon className="h-4 w-4 !text-destructive" />
                           <AlertTitle>{error}</AlertTitle>
@@ -183,10 +205,18 @@ export const SignUpView = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <Button variant="outline" type="button" className="w-full">
+                      <Button disabled={pending}
+                        onClick={() => {
+                          onSocial("google");
+                        }} variant="outline" type="button" className="w-full">
+                        <FaGoogle />
                         Google
                       </Button>
-                      <Button variant="outline" type="button" className="w-full">
+                      <Button disabled={pending} onClick={() => {
+                        onSocial("github");
+                      }} variant="outline" type="button" className="w-full">
+                        <FaGithub />
+
                         Github
                       </Button>
                     </div>

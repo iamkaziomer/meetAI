@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { FaGithub } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
+
 import {
   Form,
   FormControl,
@@ -38,25 +41,45 @@ export const SignInView = () => {
     },
   });
 
-  const onSubmit = (data:z.infer<typeof formsSchema>)=>{
+  const onSubmit = (data: z.infer<typeof formsSchema>) => {
     setError(null)
     setPending(true)
     authClient.signIn.email({
-      email:data.email,
-      password:data.password
+      email: data.email,
+      password: data.password
     },
-    {
-      onSuccess:()=>{
-        router.push('/')
-        setPending(false)
-      },
-      onError:(error)=>{
-        setError(error.error.message)
-        setPending(false)
+      {
+        onSuccess: () => {
+          router.push('/')
+          setPending(false)
+        },
+        onError: (error) => {
+          setError(error.error.message)
+          setPending(false)
+        }
       }
-    }
     )
   }
+    const onSocial = (provider: "github" | "google") => {
+      setError(null);
+      setPending(true);
+  
+      authClient.signIn.social(
+        {
+          provider : provider,
+          callbackURL: "/"
+        },
+        {
+          onSuccess: () => {
+            setPending(false);
+          },
+          onError: (error) => {
+            setError(error.error.message);
+            setPending(false);
+          },
+        }
+      );
+    };
 
 
 
@@ -117,18 +140,29 @@ export const SignInView = () => {
                           <AlertTitle>{error}</AlertTitle>
                         </Alert>
                       </div>}
-                        <Button disabled={pending} className='w-full' type="submit">Sign-in</Button>
-                      <div className="flex items-center flex-col justify-center">
+                    <Button disabled={pending} className='w-full' type="submit">Sign-in</Button>
+                    <div className="flex items-center flex-col justify-center">
 
                       <p className="">or continue with</p>
-                      </div>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <Button variant="outline" type="button" className="w-full">Google</Button>
-                      <Button variant="outline" type="button" className="w-full">Github</Button>
+                      <Button disabled={pending}
+                        onClick={() => {
+                          onSocial("google");
+                        }} variant="outline" type="button" className="w-full">
+                          <FaGoogle />
+                        Google
+                      </Button>
+                      <Button disabled={pending} onClick={() => {
+                       onSocial("github");
+                      }} variant="outline" type="button" className="w-full">
+                        <FaGithub/>
+                        Github
+                      </Button>
                     </div>
                     <div className="text-center text-sm">
                       Don&apos;t have an account ?{" "}
-                      <Link  href='/sign-up' className='underline underlife-offset-4'>Sign up</Link>
+                      <Link href='/sign-up' className='underline underlife-offset-4'>Sign up</Link>
                     </div>
                   </div>
                 </form>
